@@ -2,7 +2,7 @@
 const databaseVideoManual = {
     "52305": { 
         "title": "Otonari no Tenshi sama", // Tambahkan baris ini disetiap data anime baru bro!
-        "sinopsis": "Amane Fujimiya adalah cowok SMA berantakan yang tinggal bertetangga dengan Mahiru Shiina, gadis tercantik di sekolah yang dijuluki "Malaikat". Hubungan mereka dimulai saat Amane meminjamkan payungnya di hari hujan, yang membuat Amane jatuh sakit keesokan harinya. Merasa berutang budi dan tidak tega melihat gaya hidup Amane, Mahiru mulai datang setiap hari untuk memasak dan merawatnya. Demi menghindari rumor, mereka merahasiakan hubungan ini, namun interaksi harian tersebut perlahan menumbuhkan cinta yang tulus dan manis di antara keduanya.",
+        "sinopsis": "Amane Fujimiya adalah cowok SMA berantakan yang tinggal bertetangga dengan Mahiru Shiina, gadis tercantik di sekolah yang dijuluki 'Malaikat'. Hubungan mereka dimulai saat Amane meminjamkan payungnya di hari hujan, yang membuat Amane jatuh sakit keesokan harinya. Merasa berutang budi dan tidak tega melihat gaya hidup Amane, Mahiru mulai datang setiap hari untuk memasak dan merawatnya. Demi menghindari rumor, mereka merahasiakan hubungan ini, namun interaksi harian tersebut perlahan menumbuhkan cinta yang tulus dan manis di antara keduanya.",
         "genre": ["Romance", "School", "Slice of Life"],
         "episodes": {
             "1": {
