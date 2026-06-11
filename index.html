@@ -381,12 +381,10 @@
             wrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
         }
 
-        // PLAYER ENGINE
         function bukaPlayer(idMal, judul) {
-    // Alihkan halaman ke player.html sambil membawa ID Anime dan Judul lewat URL Parameter
+    // Mengalihkan halaman ke player.html dengan aman membawa ID dan Judul ke URL
     window.location.href = `player.html?id=${idMal}&title=${encodeURIComponent(judul)}`;
 }
-
 
         function muatSistemBypassVideo() {
             const iframe = document.getElementById("video-iframe");
