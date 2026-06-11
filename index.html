@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FryMedia Anime Player 🗿</title>
+    <style>
+        /* BASE & ANTI SALIN */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background: linear-gradient(135deg, #0d0e12 0%, #15161e 100%); 
+            color: #f3f4f6; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            padding: 15px;
+            padding-bottom: 300px; /* Ditambah agar scroll ke bawah jauh lebih panjang dan luas */
+            min-height: 100vh;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* BANNER RUNNING TEXT / BERITA (STRATEGI HEMAT GITHUB) */
+        .running-text-banner {
+            background: rgba(255, 192, 203, 0.12);
+            border: 1px solid rgba(255, 192, 203, 0.25);
+            border-radius: 8px;
+            padding: 10px 14px;
+            max-width: 900px;
+            margin: 10px auto 20px auto;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 13px;
+            color: #ffb6c1;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+        }
+        .running-text-banner marquee { vertical-align: middle; }
+        .running-text-banner span { color: #ff4d4d; font-weight: 800; }
+
+        /* BUTTON CREDITS OVERLAY */
+        .top-navigation {
+            display: flex;
+            justify-content: flex-end;
+            max-width: 900px;
+            margin: 0 auto 15px auto;
+        }
+        .btn-credits {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 192, 203, 0.2);
+            color: #ffb6c1;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        .btn-credits:hover {
+            background: #ffb6c1;
+            color: #111;
+            box-shadow: 0 0 10px rgba(255, 192, 203, 0.5);
+        }
+
+        /* HEADER */
+        h2 { 
+            color: #ffb6c1; 
+            font-size: 28px; 
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 15px rgba(255, 182, 193, 0.4); 
+            margin-bottom: 6px; 
+        }
+        .sub { color: #9ca3af; font-size: 13px; margin-bottom: 25px; }
+
+        /* POSTER SLIDER AUTOMATIS */
+        .slider-container {
+            max-width: 900px;
+            margin: 0 auto 30px auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .slider-wrapper {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            width: 100%;
+        }
+        .slide-item {
+            min-width: 100%;
+            position: relative;
+            height: 250px;
+            background: #222;
+        }
+        .slide-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.5) contrast(1.1);
+        }
+        .slide-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 25px 20px;
+            background: linear-gradient(to top, rgba(13,14,18,1) 0%, rgba(13,14,18,0) 100%);
+            text-align: left;
+        }
+        .slide-tag {
+            background: #ffb6c1;
+            color: #111;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .slide-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 5px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        /* SEARCH CONTAINER & GENRE FILTER */
+        .search-area-box {
+            max-width: 600px;
+            margin: 0 auto 35px auto;
+            background: rgba(22, 22, 26, 0.6);
+            border: 1px solid rgba(255, 192, 203, 0.15);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+        .search-container {
+            display: flex;
+            background: #121214;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 3px;
+        }
+        .search-container input { 
+            flex: 1; padding: 12px; border: none; background: transparent; color: #fff; font-size: 14px; outline: none;
+            -webkit-user-select: text; user-select: text;
+        }
+        .search-container button { 
+            padding: 0 20px; border-radius: 8px; border: none; background: #ffb6c1; color: #111; font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .search-container button:hover { background: #ffa4b2; }
+
+        /* GENRE CHIPS SELECTOR */
+        .genre-title {
+            text-align: left; font-size: 12px; color: #ffb6c1; font-weight: bold; margin: 12px 0 6px 4px; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .genre-wrapper {
+            display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 182, 193, 0.3) transparent;
+        }
+        .genre-wrapper::-webkit-scrollbar { height: 4px; }
+        .genre-wrapper::-webkit-scrollbar-thumb { background: rgba(255, 182, 193, 0.3); border-radius: 10px; }
+        .genre-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #ccc; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: 0.2s;
+        }
+        .genre-chip:hover, .genre-chip.active {
+            background: rgba(255, 182, 193, 0.2);
+            border-color: #ffb6c1;
+            color: #ffb6c1;
+        }
+
+        /* VIDEOPLAYER CONTAINER */
+        #player-container { 
+            display: none; max-width: 760px; margin: 0 auto 35px auto; background: #121214; padding: 16px; border-radius: 16px; 
+            border: 1px solid rgba(255, 182, 193, 0.3); box-shadow: 0 10px 30px rgba(255, 182, 193, 0.15); 
+        }
+        #judul-aktif { font-weight: 700; margin-bottom: 14px; color: #ffb6c1; font-size: 15px; text-align: left; }
+        .wrapper-video { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; background: #000; }
+        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .kontrol-box { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; gap: 10px; }
+        .kontrol-box > div { display: flex; gap: 10px; }
+        select { padding: 10px 16px; background: #1c1c1e; color: #ffb6c1; border: 1px solid rgba(255, 182, 193, 0.2); border-radius: 8px; font-weight: 600; cursor: pointer; outline: none; }
+        .btn-tutup { background: #ef4444; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; }
+
+        /* GRID POSTER ANIME */
+        .grid-anime { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; padding: 10px 5px; max-width: 900px; margin: auto; }
+        .kartu-anime { background: #16161a; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.02); cursor: pointer; transition: all 0.3s ease; position: relative; }
+        .kartu-anime:hover { border-color: rgba(255, 182, 193, 0.4); transform: translateY(-5px); box-shadow: 0 8px 20px rgba(255, 182, 193, 0.15); }
+        .img-container { width: 100%; height: 205px; overflow: hidden; background: #222; }
+        .kartu-anime img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .kartu-anime:hover img { transform: scale(1.06); }
+        .judul-anime { font-size: 12px; font-weight: 600; padding: 10px 8px; text-align: left; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .kartu-anime:hover .judul-anime { color: #ffb6c1; }
+        
+        #status { font-size: 14px; margin-top: 40px; color: #ffb6c1; font-weight: 500; }
+    </style>
+    <script src="database.js"></script>
+</head>
+<body oncontextmenu="return false" oncopy="return false" oncut="return false">
+
+    <div class="top-navigation">
+        <button class="btn-credits" onclick="bukaKredit()">Credits & Contribution 👥</button>
+    </div>
+
+    <h2>FryMedia Anime Player 🍿🗿</h2>
+    <div class="sub">NON-OFFICIAL FANSMADE SITE — Media Eksperimen Database & Player Sandbox Lokal</div>
+
+    <div class="running-text-banner">
+        <marquee behavior="scroll" direction="left" scrollamount="4">
+            ⚠️ <span>PENGUMUMAN SERVER GITHUB:</span> Web ini adalah platform <b>NON-OFFICIAL</b>. Untuk meminimalisir penggunaan traffic kuota GitHub, database video manual akan di-update sekaligus secara berkala (Rapel 1 Minggu Sekali). Oleh karena itu, anime status Ongoing akan mengalami keterlambatan tayang sekitar 1 minggu dari rilis utama! 🗿✨
+        </marquee>
+    </div>
+
+    <div class="slider-container">
+        <div class="slider-wrapper" id="slider-box">
+            </div>
+    </div>
+
+    <div class="search-area-box">
+        <div class="search-container">
+            <input type="text" id="keyword-pencarian" placeholder="Ketik judul anime kesukaanmu...">
+            <button onclick="cariAnime()">Cari 🔍</button>
+        </div>
+        
+        <div class="genre-title">Genre Yang Ada</div>
+        <div class="genre-wrapper" id="genre-list-box">
+            </div>
+    </div>
+
+    <div id="player-container">
+        <div id="judul-aktif"></div>
+        <div class="wrapper-video">
+            <iframe id="video-iframe" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+        </div>
+        <div class="kontrol-box">
+            <div>
+                <select id="pilih-episode" onchange="gantiEpisode()"></select>
+                <select id="pilih-server" onchange="gantiServer()">
+                    <option value="1">🌐 Server 1 (utama)</option>
+                    <option value="2">🌐 Server 2 (cadangan)</option>
+                </select>
+            </div>
+            <button class="btn-tutup" onclick="tutupPlayer()">Tutup Player ❌</button>
+        </div>
+    </div>
+
+    <div id="status">Menghubungkan satelit anime terpopuler... ⏳</div>
+    <div class="grid-anime" id="tempat-anime"></div>
+
+    <script>
+        let animeIdAktif = "";
+        let episodeAktif = 1;
+        let serverAktif = "1";
+        let slideIndex = 0;
+
+        // DAFTAR GENRE SUPER LENGKAP MAPS LANGSUNG KE JIKAN / MYANIMELIST API ENGINE
+        const genreDatabaseUniversal = {
+            "Action": 1, "Adventure": 2, "Racing": 3, "Comedy": 4, 
+            "Mystery": 7, "Drama": 8, "Fantasy": 10, "Horror": 14, 
+            "Mecha": 18, "Music": 19, "Parody": 20, "Romance": 22, 
+            "Sci-Fi": 24, "Slice of Life": 36, "Supernatural": 37, 
+            "Suspense": 41, "Award Winning": 46, "Gourmet": 47, 
+            "Work Life": 48, "Ecchi": 9, "Sports": 30
+        };
+
+        // Keamanan Tambahan: Blokir Inspect Element (F12, Ctrl+Shift+I, dll)
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+        };
+
+        // Mulai Load Data Awal Halaman
+        renderSemuaGenreChips();
+        muatDaftarAnime("https://api.jikan.moe/v4/top/anime?limit=24", true);
+
+        function muatDaftarAnime(url, muatSliderJuga = false) {
+            document.getElementById("status").style.display = "block";
+            document.getElementById("status").innerText = "Membuka gerbang database anime gweh... ⏳";
+            
+            fetch(url)
+            .then(res => res.json())
+            .then(response => {
+                document.getElementById("status").style.display = "none";
+                const daftarAnime = response.data;
+                let html = "";
+
+                if (!daftarAnime || daftarAnime.length === 0) {
+                    document.getElementById("status").style.display = "block";
+                    document.getElementById("status").innerText = "Judul atau genre tidak ditemukan! 🗿";
+                    return;
+                }
+
+                daftarAnime.forEach(anime => {
+                    const poster = anime.images.jpg.large_image_url;
+                    const judul = anime.title_english || anime.title;
+                    const idMal = anime.mal_id;
+                    
+                    html += `
+                        <div class="kartu-anime" onclick="bukaPlayer('${idMal}', '${judul.replace(/'/g, "\\'")}')">
+                            <div class="img-container">
+                                <img src="${poster}" alt="${judul}" loading="lazy">
+                            </div>
+                            <div class="judul-anime">${judul}</div>
+                        </div>
+                    `;
+                });
+                document.getElementById("tempat-anime").innerHTML = html;
+
+                if (muatSliderJuga && daftarAnime.length >= 5) {
+                    bikinSliderOtomatis(daftarAnime.slice(0, 5));
+                }
+            })
+            .catch(err => {
+                document.getElementById("status").innerText = "Koneksi satelit sibuk 🗿";
+            });
+        }
+
+        function cariAnime() {
+            document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+            const keyword = document.getElementById("keyword-pencarian").value;
+            if (!keyword) return alert("Ketik dulu judul animenya woi! 🗿");
+            muatDaftarAnime(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(keyword)}&limit=24`);
+        }
+
+        // GENERATE CHIPS SAKTI UNTUK SEMUA GENRE
+        function renderSemuaGenreChips() {
+            const container = document.getElementById("genre-list-box");
+            let html = "";
+            for (const key in genreDatabaseUniversal) {
+                html += `<span class="genre-chip" onclick="filterGenre(this, ${genreDatabaseUniversal[key]})">${key}</span>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function filterGenre(element, idGenre) {
+            document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById("keyword-pencarian").value = ""; 
+
+            const urlGenre = `https://api.jikan.moe/v4/anime?genres=${idGenre}&order_by=popularity&limit=24`;
+            muatDaftarAnime(urlGenre);
+        }
+
+        // AUTOMATIC SLIDER INJECTION
+        function bikinSliderOtomatis(dataSlider) {
+            const wrapper = document.getElementById("slider-box");
+            let html = "";
+            dataSlider.forEach(anime => {
+                const banner = anime.images.jpg.large_image_url;
+                const judul = anime.title_english || anime.title;
+                const tipe = anime.type || "TV";
+                
+                html += `
+                    <div class="slide-item" onclick="bukaPlayer('${anime.mal_id}', '${judul.replace(/'/g, "\\'")}')" style="cursor:pointer;">
+                        <img src="${banner}" alt="${judul}">
+                        <div class="slide-info">
+                            <span class="slide-tag">Hot Spotlight (${tipe})</span>
+                            <div class="slide-title">${judul}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            wrapper.innerHTML = html;
+            setInterval(jalankanSlider, 4000); 
+        }
+
+        function jalankanSlider() {
+            const wrapper = document.getElementById("slider-box");
+            const totalSlides = wrapper.children.length;
+            if (totalSlides === 0) return;
+            slideIndex = (slideIndex + 1) % totalSlides;
+            wrapper.style.transform = `translateX(-${slideIndex * 100}%)`;
+        }
+
+        // PLAYER ENGINE
+        function bukaPlayer(idMal, judul) {
+            animeIdAktif = idMal;
+            episodeAktif = 1;
+            serverAktif = "1";
+            document.getElementById("pilih-server").value = "1";
+            
+            document.getElementById("player-container").style.display = "block";
+            document.getElementById("judul-aktif").innerText = "🎬 Sekarang Memutar: " + judul;
+
+            const dropdown = document.getElementById("pilih-episode");
+            dropdown.innerHTML = "";
+            for (let i = 1; i <= 24; i++) {
+                dropdown.innerHTML += `<option value="${i}">📺 Episode ${i}</option>`;
+            }
+
+            muatSistemBypassVideo();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function muatSistemBypassVideo() {
+            const iframe = document.getElementById("video-iframe");
+            if (serverAktif === "1") {
+                iframe.src = `https://vidsrc.me/embed/anime?mal_id=${animeIdAktif}&episode=${episodeAktif}&lang=id`;
+            } else {
+                iframe.src = `https://vidjoy.pro/embed/anime?mal_id=${animeIdAktif}&episode=${episodeAktif}&lang=id`;
+            }
+        }
+
+        function gantiEpisode() {
+            episodeAktif = document.getElementById("pilih-episode").value;
+            muatSistemBypassVideo();
+        }
+
+        function gantiServer() {
+            serverAktif = document.getElementById("pilih-server").value;
+            muatSistemBypassVideo();
+        }
+
+        function tutupPlayer() {
+            document.getElementById("video-iframe").src = "";
+            document.getElementById("player-container").style.display = "none";
+        }
+
+        // CREDIT POPUP LOG
+        function bukaKredit() {
+            alert("📋 FRYMEDIA DIGITAL PRODUCTION CREDIT:\n\n" +
+                  "• Founder & Developer: S.Fryan (FryMediaOfficial)\n" +
+                  "• Lisensi Situs: NON-OFFICIAL / FANSMADE PROJECT\n" +
+                  "• Sumber Pustaka Data: Jikan API Open-Source\n" +
+                  "• Kontributor Jalur Embed Eksternal:\n" +
+                  "  - Samehadaku Network (Inspirasi Terbesar)\n" +
+                  "  - Otakudesu\n" +
+                  ". - WinbuTV Network Streamers\n" +
+                  "  - Vidsrc Provider Engines\n\n" +
+                  "Web dibuat murni untuk portofolio digital studio lokal dan latihan sistem sandbox aman. 🗿🔥");
+        }
+    </script>
+</body>
+</html>
