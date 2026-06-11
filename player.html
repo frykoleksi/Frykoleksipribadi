@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FryMedia Advanced Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff69b4; /* Pink khas Cantika, bisa kamu ganti sesuai selera */
+            --bg-dark: #121212;
+            --surface-dark: #1e1e1e;
+            --text-light: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .player-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--surface-dark);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        /* Video Wrapper */
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background: #000;
+        }
+
+        .video-wrapper video, .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Custom Control Bar (Hanya muncul jika menggunakan direct video/MP4) */
+        .custom-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(30, 30, 30, 0.95);
+            padding: 12px 20px;
+            border-top: 1px solid #333;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-control {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 16px;
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-control:hover {
+            color: var(--primary-color);
+        }
+
+        .speed-select {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Navigasi Episode & Server (UI ala Web) */
+        .media-info-panel {
+            padding: 20px;
+        }
+
+        .selector-section {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .selector-label {
+            font-weight: bold;
+            min-width: 80px;
+        }
+
+        .btn-nav {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-nav:hover {
+            background: #444;
+        }
+
+        .btn-nav.active {
+            background: var(--primary-color);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* Metadata Anime */
+        .anime-meta {
+            margin-top: 20px;
+            border-top: 1px solid #333;
+            padding-top: 15px;
+        }
+
+        .anime-title {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+        }
+
+        .genre-badge {
+            background: #2a2a2a;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-right: 5px;
+            border: 1px solid #444;
+        }
+
+        .sinopsis {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="player-container">
+    <div class="video-wrapper" id="playerArea">
+        </div>
+
+    <div class="custom-controls" id="customControls" style="flex-direction: column; gap: 12px; align-items: flex-start;">
+        <div style="font-size: 13px; color: #ffa500; background: rgba(255, 165, 0, 0.1); padding: 8px 14px; border-radius: 6px; border: 1px solid rgba(255, 165, 0, 0.25); width: 100%; box-sizing: border-box; line-height: 1.5;">
+            <i class="fas fa-circle-exclamation"></i> <strong>Ingpo:</strong> Jika tombol kontrol di bawah gak merespon, berarti server ini bertipe embed. Silakan langsung gunakan fitur skip/layar kontrol di dalam area video player di atas. Jika kamu menggunakan Google Chrome di HP dan tetap ingin mencoba mengaktifkan tombol di bawah, silakan aktifkan <strong>Mode Desktop (Situs Desktop)</strong> terlebih dahulu di pengaturan browser kamu ya! 🗿
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 10px;">
+            <div class="control-group">
+                <button class="btn-control" onclick="skipVideo(-10)"><i class="fas fa-backward"></i> -10s</button>
+                <button class="btn-control" onclick="togglePlay()"><i class="fas fa-play" id="playIcon"></i> Play/Pause</button>
+                <button class="btn-control" onclick="skipVideo(10)">+10s <i class="fas fa-forward"></i></button>
+                <button class="btn-control" onclick="skipIntro()"><i class="fas fa-fast-forward"></i> Skip Intro (85s)</button>
+            </div>
+            <div class="control-group">
+                <label for="videoSpeed"><i class="fas fa-gauge-high"></i> Kecepatan:</label>
+                <select id="videoSpeed" class="speed-select" onchange="changeSpeed(this.value)">
+                    <option value="0.5">0.5x</option>
+                    <option value="1.0" selected>Normal</option>
+                    <option value="1.25">1.25x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="2.0">2.0x</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="media-info-panel">
+        <div class="selector-section">
+            <span class="selector-label">Server:</span>
+            <div id="serverContainer"></div>
+        </div>
+
+        <div class="selector-section">
+            <span class="selector-label">Episode:</span>
+            <div id="episodeContainer"></div>
+        </div>
+
+        <div class="anime-meta">
+            <h2 class="anime-title" id="animeTitle">Memuat Judul...</h2>
+            <div id="genreContainer"></div>
+            <p class="sinopsis" id="animeSinopsis"></p>
+        </div>
+    </div>
+</div>
+
+<script src="database.js"></script>
+
+<script>
+// 2. Mengambil parameter ID dan Judul secara dinamis dari URL index.html
+const urlParams = new URLSearchParams(window.location.search);
+let currentAnimeId = urlParams.get('id') || "52305"; 
+let currentEpisode = urlParams.get('ep') || "1";
+let currentServer = "server1";
+
+// Ambil judul cadangan dari URL bawaan API index.html jika di database manual belum ada
+let backupTitle = urlParams.get('title') || "Detail Anime";
+
+// Inisialisasi Player saat halaman dimuat
+window.onload = function() {
+    loadAnimeData();
+    renderEpisodeButtons();
+    playMedia();
+};
+
+// 1. Fungsi Memuat Info UI Web (Sinopsis, Genre, Judul)
+function loadAnimeData() {
+    // Mencari data berdasarkan ID anime di database.js kamu
+    const anime = databaseVideoManual[currentAnimeId];
+    
+    if (anime) {
+        document.getElementById('animeTitle').innerText = anime.title || backupTitle;
+        document.getElementById('animeSinopsis').innerText = anime.sinopsis;
+        
+        // Render Chip Genre
+        const genreContainer = document.getElementById('genreContainer');
+        genreContainer.innerHTML = '';
+        anime.genre.forEach(g => {
+            genreContainer.innerHTML += `<span class="genre-badge">${g}</span>`;
+        });
+    } else {
+        // Jika anime diklik di index.html tapi belum kamu daftarkan kodenya di database.js
+        document.getElementById('animeTitle').innerText = backupTitle;
+        document.getElementById('animeSinopsis').innerText = "Sinopsis belum tersedia di database manual FryMedia. 🗿 Harap perbarui file database.js kamu untuk menambahkan data episode dan streaming anime ini.";
+        document.getElementById('genreContainer').innerHTML = `<span class="genre-badge">Unknown Genre</span>`;
+    }
+}
+
+// 2. Fungsi Render Tombol Episode & Server sesuai Database
+function renderEpisodeButtons() {
+    const anime = databaseVideoManual[currentAnimeId];
+    const epContainer = document.getElementById('episodeContainer');
+    epContainer.innerHTML = '';
+
+    // Jika anime terdaftar di database.js kamu dan ada episode-nya
+    if (anime && anime.episodes) {
+        Object.keys(anime.episodes).forEach(ep => {
+            const activeClass = ep === currentEpisode ? 'active' : '';
+            epContainer.innerHTML += `<button class="btn-nav ${activeClass}" onclick="switchEpisode('${ep}')">Ep ${ep}</button>`;
+        });
+        renderServerButtons();
+    } else {
+        // Tampilan proteksi jika datanya belum siap di database.js
+        epContainer.innerHTML = `<span style="color:#ff4d4d; font-size:13px; font-weight:600;">Belum ada episode ter-input di database.js FryMedia ⚠️</span>`;
+        document.getElementById('serverContainer').innerHTML = "-";
+    }
+}
+
+function renderServerButtons() {
+    const anime = databaseVideoManual[currentAnimeId];
+    if (!anime || !anime.episodes[currentEpisode]) return;
+    
+    const servers = anime.episodes[currentEpisode];
+    const serverContainer = document.getElementById('serverContainer');
+    serverContainer.innerHTML = '';
+
+    // Render Tombol Server secara otomatis
+    Object.keys(servers).forEach(srv => {
+        const activeClass = srv === currentServer ? 'active' : '';
+        const serverName = srv.replace('server', 'Server ');
+        serverContainer.innerHTML += `<button class="btn-nav ${activeClass}" onclick="switchServer('${srv}')">${serverName}</button>`;
+    });
+}
+
+// 3. Logika Inti Player (Deteksi Otomatis MP4 vs Embed Iframe)
+function playMedia() {
+    const anime = databaseVideoManual[currentAnimeId];
+    const playerArea = document.getElementById('playerArea');
+    const customControls = document.getElementById('customControls');
+
+    // Pengaman jika anime, episode, atau server tidak ditemukan di database.js
+    if (!anime || !anime.episodes[currentEpisode] || !anime.episodes[currentEpisode][currentServer]) {
+        playerArea.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#ff4d4d; font-weight:bold; text-align:center; padding: 20px; font-size: 14px;">
+            <div>Video Streaming Belum Tersedia! 🗿</div>
+            <div style="color: #aaa; font-weight: normal; font-size: 12px; margin-top: 5px;">Silakan daftarkan URL video kamu di database.js untuk MAL ID: ${currentAnimeId}</div>
+        </div>`;
+        customControls.style.display = 'none';
+        return;
+    }
+
+    const url = anime.episodes[currentEpisode][currentServer];
+
+    // Tombol kontrol dan teks ingpo akan selalu ditampilkan di semua server
+    customControls.style.display = 'flex';
+
+    // Cek jenis link (video langsung/filedon vs embed external iframe)
+    if (url.includes('.mp4') || url.includes('streaming.php')) {
+        playerArea.innerHTML = `<video id="mainVideo" controls src="${url}"></video>`;
+        
+        setTimeout(() => {
+            const v = document.getElementById('mainVideo');
+            if(v) {
+                v.addEventListener('play', () => document.getElementById('playIcon').className = "fas fa-pause");
+                v.addEventListener('pause', () => document.getElementById('playIcon').className = "fas fa-play");
+            }
+        }, 200);
+    } else {
+        playerArea.innerHTML = `<iframe src="${url}" allowfullscreen></iframe>`;
+    }
+}
+
+// 4. Fungsi Navigasi Switcher
+function switchEpisode(ep) {
+    currentEpisode = ep;
+    currentServer = "server1"; 
+    renderEpisodeButtons();
+    playMedia();
+}
+
+function switchServer(srv) {
+    currentServer = srv;
+    renderServerButtons();
+    playMedia();
+}
+
+// 5. Fungsi Modifikasi Video (Fasilitas Utama)
+function togglePlay() {
+    const video = document.getElementById('mainVideo');
+    if(video) { video.paused ? video.play() : video.pause(); }
+}
+
+function skipVideo(seconds) {
+    const video = document.getElementById('mainVideo');
+    if(video) { video.currentTime += seconds; }
+}
+
+function skipIntro() {
+    const video = document.getElementById('mainVideo');
+    if(video) { video.currentTime += 85; }
+}
+
+function changeSpeed(speed) {
+    const video = document.getElementById('mainVideo');
+    if(video) { video.playbackRate = parseFloat(speed); }
+}
+</script>
+
+</body>
+</html>
