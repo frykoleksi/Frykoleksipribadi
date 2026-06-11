@@ -1,6 +1,6 @@
 // database.js
 const databaseVideoManual = {
-    "52305": { 
+    "50739": { 
         "title": "Otonari no Tenshi sama", // Tambahkan baris ini disetiap data anime baru bro!
         "sinopsis": "Amane Fujimiya adalah cowok SMA berantakan yang tinggal bertetangga dengan Mahiru Shiina, gadis tercantik di sekolah yang dijuluki 'Malaikat'. Hubungan mereka dimulai saat Amane meminjamkan payungnya di hari hujan, yang membuat Amane jatuh sakit keesokan harinya. Merasa berutang budi dan tidak tega melihat gaya hidup Amane, Mahiru mulai datang setiap hari untuk memasak dan merawatnya. Demi menghindari rumor, mereka merahasiakan hubungan ini, namun interaksi harian tersebut perlahan menumbuhkan cinta yang tulus dan manis di antara keduanya.",
         "genre": ["Romance", "School", "Slice of Life"],
@@ -57,7 +57,7 @@ const databaseVideoManual = {
         }
     },
     
-    "12345": { 
+    "50739_s2": { 
         "title": "Otonari no Tenshi sama season 2", // Tambahkan baris ini disetiap data anime baru bro!
         "sinopsis": "Setelah resmi berpacaran di akhir musim pertama, Amane Fujimiya dan Mahiru Shiina kini menjalani babak baru hubungan mereka yang jauh lebih romantis. Tidak lagi sekadar bersembunyi sebagai tetangga, mereka kini harus belajar menghadapi reaksi teman-teman di sekolah setelah status hubungan mereka mulai terbuka. Musim kedua ini akan berfokus pada perkembangan cinta mereka yang semakin intim, momen saling terbuka tentang masa lalu, serta keseharian manis yang dijamin bikin baper.",
         "genre": ["Romance", "School", "Slice of Life"],
