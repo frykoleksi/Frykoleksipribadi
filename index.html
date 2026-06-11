@@ -383,23 +383,10 @@
 
         // PLAYER ENGINE
         function bukaPlayer(idMal, judul) {
-            animeIdAktif = idMal;
-            episodeAktif = 1;
-            serverAktif = "1";
-            document.getElementById("pilih-server").value = "1";
-            
-            document.getElementById("player-container").style.display = "block";
-            document.getElementById("judul-aktif").innerText = "🎬 Sekarang Memutar: " + judul;
+    // Alihkan halaman ke player.html sambil membawa ID Anime dan Judul lewat URL Parameter
+    window.location.href = `player.html?id=${idMal}&title=${encodeURIComponent(judul)}`;
+}
 
-            const dropdown = document.getElementById("pilih-episode");
-            dropdown.innerHTML = "";
-            for (let i = 1; i <= 24; i++) {
-                dropdown.innerHTML += `<option value="${i}">📺 Episode ${i}</option>`;
-            }
-
-            muatSistemBypassVideo();
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        }
 
         function muatSistemBypassVideo() {
             const iframe = document.getElementById("video-iframe");
