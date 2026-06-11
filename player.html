@@ -226,7 +226,6 @@ window.onload = function() {
 
 // Fungsi Memuat Info UI Web (Sinopsis, Genre, Judul)
 function loadAnimeData() {
-    // Mencari data berdasarkan ID anime di database.js kamu
     const anime = databaseVideoManual[currentAnimeId];
     
     if (anime) {
@@ -244,7 +243,6 @@ function loadAnimeData() {
             genreContainer.innerHTML = `<span class="genre-badge">No Genre</span>`;
         }
     } else {
-        // Jika anime diklik di index.html tapi belum kamu daftarkan kodenya di database.js
         document.getElementById('animeTitle').innerText = backupTitle;
         document.getElementById('animeSinopsis').innerText = "Sinopsis belum tersedia di database manual FryMedia. 🗿 Harap perbarui file database.js kamu untuk menambahkan data episode dan streaming anime ini.";
         document.getElementById('genreContainer').innerHTML = `<span class="genre-badge">Unknown Genre</span>`;
