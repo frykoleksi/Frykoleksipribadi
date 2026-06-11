@@ -56,7 +56,9 @@ const databaseVideoManual = {
             // Kamu tinggal teruskan ke bawah untuk episode berikutnya...
         }
     },
-    "12345": { // Contoh ID Anime Lainnya
+    const databaseVideoManual = {
+    "12345": { 
+        "title": "Otonari no Tenshi sama season 2", // Tambahkan baris ini disetiap data anime baru bro!
         "sinopsis": "Setelah resmi berpacaran di akhir musim pertama, Amane Fujimiya dan Mahiru Shiina kini menjalani babak baru hubungan mereka yang jauh lebih romantis. Tidak lagi sekadar bersembunyi sebagai tetangga, mereka kini harus belajar menghadapi reaksi teman-teman di sekolah setelah status hubungan mereka mulai terbuka. Musim kedua ini akan berfokus pada perkembangan cinta mereka yang semakin intim, momen saling terbuka tentang masa lalu, serta keseharian manis yang dijamin bikin baper.",
         "genre": ["Romance", "School", "Slice of Life"],
         "episodes": {
