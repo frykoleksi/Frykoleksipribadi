@@ -47,7 +47,7 @@
             border: none;
         }
 
-        /* Custom Control Bar (Hanya muncul jika menggunakan direct video/MP4) */
+        /* Custom Control Bar */
         .custom-controls {
             display: flex;
             align-items: center;
@@ -161,7 +161,7 @@
     <div class="video-wrapper" id="playerArea">
         </div>
 
-    <div class="custom-controls" id="customControls" style="flex-direction: column; gap: 12px; align-items: flex-start;">
+    <div class="custom-controls" id="customControls" style="display: flex; flex-direction: column; gap: 12px; align-items: flex-start;">
         <div style="font-size: 13px; color: #ffa500; background: rgba(255, 165, 0, 0.1); padding: 8px 14px; border-radius: 6px; border: 1px solid rgba(255, 165, 0, 0.25); width: 100%; box-sizing: border-box; line-height: 1.5;">
             <i class="fas fa-circle-exclamation"></i> <strong>Ingpo:</strong> Jika tombol kontrol di bawah gak merespon, berarti server ini bertipe embed. Silakan langsung gunakan fitur skip/layar kontrol di dalam area video player di atas. Jika kamu menggunakan Google Chrome di HP dan tetap ingin mencoba mengaktifkan tombol di bawah, silakan aktifkan <strong>Mode Desktop (Situs Desktop)</strong> terlebih dahulu di pengaturan browser kamu ya! 🗿
         </div>
@@ -200,7 +200,7 @@
         <div class="anime-meta">
             <h2 class="anime-title" id="animeTitle">Memuat Judul...</h2>
             <div id="genreContainer"></div>
-            <p class="sinopsis" id="animeSinopsis"></p>
+            <p class="sinopsis" id="animeSinopsis">Memuat sinopsis anime...</p>
         </div>
     </div>
 </div>
@@ -208,7 +208,7 @@
 <script src="database.js"></script>
 
 <script>
-// 2. Mengambil parameter ID dan Judul secara dinamis dari URL index.html
+// Mengambil parameter ID dan Judul secara dinamis dari URL index.html
 const urlParams = new URLSearchParams(window.location.search);
 let currentAnimeId = urlParams.get('id') || "52305"; 
 let currentEpisode = urlParams.get('ep') || "1";
@@ -224,21 +224,25 @@ window.onload = function() {
     playMedia();
 };
 
-// 1. Fungsi Memuat Info UI Web (Sinopsis, Genre, Judul)
+// Fungsi Memuat Info UI Web (Sinopsis, Genre, Judul)
 function loadAnimeData() {
     // Mencari data berdasarkan ID anime di database.js kamu
     const anime = databaseVideoManual[currentAnimeId];
     
     if (anime) {
         document.getElementById('animeTitle').innerText = anime.title || backupTitle;
-        document.getElementById('animeSinopsis').innerText = anime.sinopsis;
+        document.getElementById('animeSinopsis').innerText = anime.sinopsis || "Sinopsis tidak ditemukan di database.";
         
         // Render Chip Genre
         const genreContainer = document.getElementById('genreContainer');
         genreContainer.innerHTML = '';
-        anime.genre.forEach(g => {
-            genreContainer.innerHTML += `<span class="genre-badge">${g}</span>`;
-        });
+        if(anime.genre && anime.genre.length > 0) {
+            anime.genre.forEach(g => {
+                genreContainer.innerHTML += `<span class="genre-badge">${g}</span>`;
+            });
+        } else {
+            genreContainer.innerHTML = `<span class="genre-badge">No Genre</span>`;
+        }
     } else {
         // Jika anime diklik di index.html tapi belum kamu daftarkan kodenya di database.js
         document.getElementById('animeTitle').innerText = backupTitle;
@@ -247,13 +251,12 @@ function loadAnimeData() {
     }
 }
 
-// 2. Fungsi Render Tombol Episode & Server sesuai Database
+// Fungsi Render Tombol Episode & Server sesuai Database
 function renderEpisodeButtons() {
     const anime = databaseVideoManual[currentAnimeId];
     const epContainer = document.getElementById('episodeContainer');
     epContainer.innerHTML = '';
 
-    // Jika anime terdaftar di database.js kamu dan ada episode-nya
     if (anime && anime.episodes) {
         Object.keys(anime.episodes).forEach(ep => {
             const activeClass = ep === currentEpisode ? 'active' : '';
@@ -261,7 +264,6 @@ function renderEpisodeButtons() {
         });
         renderServerButtons();
     } else {
-        // Tampilan proteksi jika datanya belum siap di database.js
         epContainer.innerHTML = `<span style="color:#ff4d4d; font-size:13px; font-weight:600;">Belum ada episode ter-input di database.js FryMedia ⚠️</span>`;
         document.getElementById('serverContainer').innerHTML = "-";
     }
@@ -275,7 +277,6 @@ function renderServerButtons() {
     const serverContainer = document.getElementById('serverContainer');
     serverContainer.innerHTML = '';
 
-    // Render Tombol Server secara otomatis
     Object.keys(servers).forEach(srv => {
         const activeClass = srv === currentServer ? 'active' : '';
         const serverName = srv.replace('server', 'Server ');
@@ -283,13 +284,12 @@ function renderServerButtons() {
     });
 }
 
-// 3. Logika Inti Player (Deteksi Otomatis MP4 vs Embed Iframe)
+// Logika Inti Player (Deteksi Otomatis MP4 vs Embed Iframe)
 function playMedia() {
     const anime = databaseVideoManual[currentAnimeId];
     const playerArea = document.getElementById('playerArea');
     const customControls = document.getElementById('customControls');
 
-    // Pengaman jika anime, episode, atau server tidak ditemukan di database.js
     if (!anime || !anime.episodes[currentEpisode] || !anime.episodes[currentEpisode][currentServer]) {
         playerArea.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#ff4d4d; font-weight:bold; text-align:center; padding: 20px; font-size: 14px;">
             <div>Video Streaming Belum Tersedia! 🗿</div>
@@ -300,11 +300,8 @@ function playMedia() {
     }
 
     const url = anime.episodes[currentEpisode][currentServer];
-
-    // Tombol kontrol dan teks ingpo akan selalu ditampilkan di semua server
     customControls.style.display = 'flex';
 
-    // Cek jenis link (video langsung/filedon vs embed external iframe)
     if (url.includes('.mp4') || url.includes('streaming.php')) {
         playerArea.innerHTML = `<video id="mainVideo" controls src="${url}"></video>`;
         
@@ -320,7 +317,6 @@ function playMedia() {
     }
 }
 
-// 4. Fungsi Navigasi Switcher
 function switchEpisode(ep) {
     currentEpisode = ep;
     currentServer = "server1"; 
@@ -334,7 +330,7 @@ function switchServer(srv) {
     playMedia();
 }
 
-// 5. Fungsi Modifikasi Video (Fasilitas Utama)
+// Fungsi Modifikasi Video
 function togglePlay() {
     const video = document.getElementById('mainVideo');
     if(video) { video.paused ? video.play() : video.pause(); }
@@ -355,6 +351,5 @@ function changeSpeed(speed) {
     if(video) { video.playbackRate = parseFloat(speed); }
 }
 </script>
-
 </body>
 </html>
